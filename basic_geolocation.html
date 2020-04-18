@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Covid-19 Mobile Data Tracking</h1>
+<p>Click the button to get your coordinates.</p>
+
+<button onclick="getLocation()">Find Location</button>
+<button onclick="SendLocation()">Send Location</button>
+
+<p id="demo"></p>
+
+<script>
+var x = document.getElementById("demo");
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else { 
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+function showPosition(position) {
+  x.innerHTML = "Latitude: " + position.coords.latitude + 
+  "<br>Longitude: " + position.coords.longitude;
+}
+
+function SendLocation() {
+  //information sending portion goes here
+  x.innerHTML = "Information Sent"
+}
+</script>
+
+</body>
+</html>
