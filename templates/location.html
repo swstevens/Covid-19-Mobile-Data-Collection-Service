@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Covid-19 Mobile Data Tracking</h1>
+<p>Click the button to get your coordinates.</p>
+
+<button id="get" onclick="getLocation()">Find Location</button>
+<button id="send" onclick="SendLocation()">Send Location</button>
+
+<p id="demo"></p>
+
+<form id="location" action="/send_location" method="POST">
+    <input type="hidden" id="lat" name="lat" value="null"><br>
+    <input type="hidden" id="lng" name="lng" value="null"><br><br>
+</form>
+
+<script>
+// Get HTML elements for use later
+var out = document.getElementById("demo");
+var sendButton = document.getElementById("send");
+var locationForm = document.getElementById("location");
+var lat = document.getElementById("lat");
+var lng = document.getElementById("lng");
+
+var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
+if(sent){ // This value is sent over via Flask
+    out.innerHTML = "Information Sent"; // If sent, the page is being returned to
+}
+
+// TODO: Checking the form element would be a better way to do this
+if(out.value == undefined){ // If we have not gotten a latitude or longitude
+    sendButton.disabled = true; // Disable the send button so null data can't be sent
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else { 
+        out.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function showPosition(position) {
+    // Update the form values with latutide and longitude
+    lat.value = position.coords.latitude;
+    lng.value = position.coords.longitude;
+    out.innerHTML = "Latitude: " + position.coords.latitude + 
+    "<br>Longitude: " + position.coords.longitude;
+    sendButton.disabled = false; // User can now submit their location data
+}
+
+function SendLocation() {
+    //information sending portion goes here
+    sendButton.disabled = true;
+    locationForm.submit(); //TODO: Add verification that lat/lng != null before submitting
+}
+</script>
+
+</body>
+</html>
