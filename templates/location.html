@@ -23,10 +23,10 @@ var locationForm = document.getElementById("location");
 var lat = document.getElementById("lat");
 var lng = document.getElementById("lng");
 
-var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
-if(sent){ // This value is sent over via Flask
-    out.innerHTML = "Information Sent"; // If sent, the page is being returned to
-}
+// var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
+// if(sent){ // This value is sent over via Flask
+//     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
+// }
 
 // TODO: Checking the form element would be a better way to do this
 if(out.value == undefined){ // If we have not gotten a latitude or longitude
@@ -53,6 +53,7 @@ function showPosition(position) {
 function SendLocation() {
     //information sending portion goes here
     sendButton.disabled = true;
+    out.innerHTML = "Information Sent"; // If sent, the page is being returned to
     locationForm.submit(); //TODO: Add verification that lat/lng != null before submitting
 }
 </script>

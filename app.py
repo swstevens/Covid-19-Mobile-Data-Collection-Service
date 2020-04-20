@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template('location.html', sent=0), 200
+    return render_template('index.html'), 200
 
 # Handles location send requests
 @app.route('/send_location', methods=['POST'])
@@ -16,7 +16,7 @@ def send():
     data = request.form # This will have all location/user data
     print(data)
     # TODO: Validate data and send to the database
-    return render_template('location.html', sent=1)
+    return render_template('index.html')
 
 # Error handling routing
 @app.errorhandler(404)
