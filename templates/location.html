@@ -3,6 +3,7 @@
 <body>
 
 <h1>Covid-19 Mobile Data Tracking</h1>
+<p>Date/Time: <span id="datetime"></span></p>
 <p>Click the button to get your coordinates.</p>
 
 <button id="get" onclick="getLocation()">Find Location</button>
@@ -22,6 +23,9 @@ var sendButton = document.getElementById("send");
 var locationForm = document.getElementById("location");
 var lat = document.getElementById("lat");
 var lng = document.getElementById("lng");
+var dt = new Date();
+
+document.getElementById("datetime").innerHTML = dt.toLocaleString();
 
 // var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
 // if(sent){ // This value is sent over via Flask
@@ -36,18 +40,28 @@ if(out.value == undefined){ // If we have not gotten a latitude or longitude
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition);
-    } else { 
+    } else {
         out.innerHTML = "Geolocation is not supported by this browser.";
     }
 }
 
+// TODO: Change from a button to an if statement to automatically find user location
 function showPosition(position) {
     // Update the form values with latutide and longitude
     lat.value = position.coords.latitude;
     lng.value = position.coords.longitude;
-    out.innerHTML = "Latitude: " + position.coords.latitude + 
+    out.innerHTML = "Latitude: " + position.coords.latitude +
     "<br>Longitude: " + position.coords.longitude;
     sendButton.disabled = false; // User can now submit their location data
+}
+
+if ("geolocation" in navigator) {
+    getLocation();
+    //await delay(2000);
+    //SendLocation();
+    setTimeout(function(){SendLocation()}, 300000);
+} else {
+    console.log("location could not be found");
 }
 
 function SendLocation() {
