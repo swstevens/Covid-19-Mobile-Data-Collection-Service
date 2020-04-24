@@ -1,0 +1,32 @@
+## Mysql Database connection information
+
+mysql  Ver 8.0.19-0ubuntu0.19.10.3 for Linux on x86_64 ((Ubuntu))
+
+Connection id:		32
+Current database:	
+Current user:		zhang13@ix-dev.cs.uoregon.edu
+SSL:			Cipher in use is TLS_AES_256_GCM_SHA384
+Current pager:		less
+Using outfile:		''
+Using delimiter:	;
+Server version:		5.7.27 Source distribution
+Protocol version:	10
+Connection:		ix-dev via TCP/IP
+Server characterset:	latin1
+Db     characterset:	latin1
+Client characterset:	latin1
+Conn.  characterset:	latin1
+TCP port:		3018   
+Binary data as:		Hexadecimal
+Uptime:			4 days 11 hours 2 min 33 sec
+
+#Password for Mysql client access:
+password: Group7
+
+Database name: project_1
+Tables in project_1:
+1. user_id
+(user_id CHAR(40), user_name CHAR(40), user_wd CHAR(20))
+
+2. user_info 
+(user_id CHAR(40), date DATE, time TIME, latitude FLOAT(10,7), longitude FLOAT(10,7), time_at_location Float)
