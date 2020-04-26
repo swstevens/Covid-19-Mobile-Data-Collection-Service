@@ -85,7 +85,9 @@ function SendLocation() {
     //information sending portion goes here
     var data = {
     'latitude': lat,
-    'longitude': lng
+    'longitude': lng,
+    'time': time,
+    'date': _date
     }
 
     $.ajax({
