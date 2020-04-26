@@ -238,24 +238,22 @@ def send():
     data['latitude'] = request.form['latitude']
     data['longitude'] = request.form['longitude']
 
-    print(data, file=sys.stderr)
-
 
     #data = request.form  # This will have all location/user data
     # print(gl_id)
     u_id = gl_id
     date = "2020-4-15"
     time = "12:12:30"
-    lati = "127.262548"
-    longi = "95.232625"
+    lati = data['latitude']
+    longi = data['longitude']
     time_at = "20.33232"
     sql = "INSERT INTO user_info(`user_id`, \
        `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
        VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
           (u_id, date, time, lati, longi, time_at)
 
-    # cursor.execute(sql)
-    return render_template('location.html')
+    cursor.execute(sql)
+    return render_template('location.html'), 200
 
 
 # Error handling routing
