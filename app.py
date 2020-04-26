@@ -238,7 +238,7 @@ def send():
     if bool(data):
         u_id = gl_id
         date = "2020-4-15"
-        time = data['time'][0]
+        time = ""
         lati = data['lat'][0]
         longi = data['lng'][0]
         time_at = "1000000000"
