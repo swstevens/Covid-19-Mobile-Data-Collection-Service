@@ -27,6 +27,17 @@ var dt = new Date();
 
 document.getElementById("datetime").innerHTML = dt.toLocaleString();
 
+var dd = String(dt.getDate()).padStart(2, '0');
+varmm = String(dt.getMonth()+1).padStart(2, '0');
+var yyyy = dt.getFullYear();
+var _date = mm + "/" + mm + "/" + dd;
+
+
+var hours = String(dt.getHours());
+var minutes = String(dt.getMinutes());
+var seconds = String(dt.getSeconds());
+var time = hours + ":" + minutes + ":" + seconds;
+
 // var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
 // if(sent){ // This value is sent over via Flask
 //     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
