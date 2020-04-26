@@ -1,0 +1,33 @@
+<!-- <html>
+	<body>
+		<div class="register">
+			<h1>Register</h1>
+			<div class="links">
+				<a href="{{ url_for('login') }}">Login</a>
+				<a href="{{ url_for('register') }}" class="active">Register</a>
+			</div>
+			<form action="{{ url_for('register') }}" method="post" autocomplete="off">
+				<label for="username">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="username" placeholder="Username" id="username" required>
+				<label for="password">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="password" name="password" placeholder="Password" id="password" required>
+				<div class="msg">{{ msg }}</div>
+				<input type="submit" value="Register">
+			</form>
+		</div>
+	</body>
+</html> -->
+<h1> welcome! please register your account! </h1>
+
+<form method="POST" action="/register">
+  {{ form.csrf_token }}
+  {{ form.username.label }} {{ form.username(size=20) }}
+  {{ form.password.label }} {{ form.password(size=20) }}
+  <input type="submit" value="Register">
+</form>
+
+<p> <a href="/login"> already register?? login in here ! </a></p>
