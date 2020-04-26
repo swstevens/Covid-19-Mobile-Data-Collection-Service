@@ -234,10 +234,11 @@ def register():
 def send():
     global gl_id
     data = {}
-    data['latitude'] = request.json['latitude']
-    data['longitude'] = request.json['longitude']
+    print(request.form)
+    data['latitude'] = request.form['latitude']
+    data['longitude'] = request.form['longitude']
 
-    #print(data, file=sys.stderr)
+    print(data, file=sys.stderr)
 
 
     #data = request.form  # This will have all location/user data
