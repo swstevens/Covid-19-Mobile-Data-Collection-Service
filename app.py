@@ -233,23 +233,21 @@ def register():
 @app.route('/send_location', methods=['POST'])
 def send():
     global gl_id
+    data = request.form.to_dict(flat=False)
 
-    data = request.form.to_dict()
-    print(data['lat'])
+    if bool(data):
+        u_id = gl_id
+        date = "2020-4-15"
+        time = data['time'][0]
+        lati = data['lat'][0]
+        longi = data['lng'][0]
+        time_at = "1000000000"
+        sql = "INSERT INTO user_info(`user_id`, \
+                      `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
+                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
+              (u_id, date, time, lati, longi, time_at)
 
-    # print(gl_id)
-    u_id = gl_id
-    date = "2020-4-15"
-    time = "12:12:30"
-    lati = data['lat']
-    longi = data['lng']
-    time_at = "20.33232"
-    sql = "INSERT INTO user_info(`user_id`, \
-       `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
-       VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
-          (u_id, date, time, lati, longi, time_at)
-
-   # cursor.execute(sql)
+        cursor.execute(sql)
 
     return render_template('location.html'), 200
 
