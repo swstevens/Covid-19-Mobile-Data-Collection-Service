@@ -81,19 +81,20 @@ if ("geolocation" in navigator) {
 }
 
 function SendLocation() {
+
     //information sending portion goes here
-    var movies = {
+    var data = {
     'latitude': lat,
-    'longitude': lng,
+    'longitude': lng
     }
 
     $.ajax({
     url: '/send_location',
     type: 'POST',
-    data: JSON.stringify(movies),   // converts js value to JSON string
+    data: JSON.stringify(data),
     })
-    .done(function(result){     // on success get the return object from server
-        console.log(result)     // do whatever with it. In this case see it in console
+    .done(function(result){
+        console.log(result)
     })
 
 

@@ -233,26 +233,24 @@ def register():
 @app.route('/send_location', methods=['POST'])
 def send():
     global gl_id
-    data = {}
-    print(request.form)
-    data['latitude'] = request.form['latitude']
-    data['longitude'] = request.form['longitude']
 
+    data = request.form.to_dict()
+    print(data['lat'])
 
-    #data = request.form  # This will have all location/user data
     # print(gl_id)
     u_id = gl_id
     date = "2020-4-15"
     time = "12:12:30"
-    lati = data['latitude']
-    longi = data['longitude']
+    lati = data['lat']
+    longi = data['lng']
     time_at = "20.33232"
     sql = "INSERT INTO user_info(`user_id`, \
        `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
        VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
           (u_id, date, time, lati, longi, time_at)
 
-    cursor.execute(sql)
+   # cursor.execute(sql)
+
     return render_template('location.html'), 200
 
 
