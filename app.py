@@ -237,6 +237,8 @@ def send():
     print(request.form)
     data['latitude'] = request.form['latitude']
     data['longitude'] = request.form['longitude']
+    data['time'] = request.form['time']
+    data['date'] = request.form['date']
 
     print(data, file=sys.stderr)
 
@@ -244,10 +246,10 @@ def send():
     #data = request.form  # This will have all location/user data
     # print(gl_id)
     u_id = gl_id
-    date = "2020-4-15"
-    time = "12:12:30"
-    lati = "127.262548"
-    longi = "95.232625"
+    date = data['date']
+    time = data['time']
+    lati = data['latitude']
+    longi = data['longitude']
     time_at = "20.33232"
     sql = "INSERT INTO user_info(`user_id`, \
        `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
