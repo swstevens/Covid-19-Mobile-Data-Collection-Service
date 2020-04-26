@@ -17,7 +17,7 @@ https://docs.google.com/document/d/1WgJgN3KfEt58pSCRbN9xhGg9hxizBzMT3b5lm2GVGZs/
 Installation_Instructions.pdf or .txt 
 https://docs.google.com/document/d/1WMjeGNgpIyr57a3qrxb5NNCq_Z6vFYfF5vkOwWLuYV4/edit?usp=sharing
 
-User_Documentation.pdf
+User_Documentation.pdf          
 https://docs.google.com/document/d/1XDDD1h08Im2EVtX1m9aehztTM_3U4NXxz794EALzPEs/edit?usp=sharing
 
 + Install the dependencies with the command `pip3 install -r requirements.txt`  
