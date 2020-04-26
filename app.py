@@ -1,40 +1,41 @@
 import sqlite3
+import sys
+
 from flask import Flask, request, abort
 from flask_login import LoginManager
 from flask_login import UserMixin
-from flask import render_template, redirect, url_for,flash,Response,session,jsonify
+from flask import render_template, redirect, url_for, flash, Response, session, jsonify
 from flask_login import login_user, logout_user
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 from flask import render_template, url_for
 from flask_login import current_user, login_required
-from wtforms import StringField, PasswordField,Form, BooleanField, StringField, validators, SubmitField
+from wtforms import StringField, PasswordField, Form, BooleanField, StringField, validators, SubmitField
 from wtforms.validators import DataRequired, EqualTo
 from flask_wtf.form import FlaskForm
 from itsdangerous import (TimedJSONWebSignatureSerializer \
-                                  as Serializer, BadSignature, \
-                                  SignatureExpired)
+                              as Serializer, BadSignature, \
+                          SignatureExpired)
 import uuid
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 
-
 app = Flask(__name__)
 
 app.secret_key = 'abc'
 
-db = MySQLdb.connect( port = 3018,
+db = MySQLdb.connect(port=3018,
 
-                            host = 'ix-dev.cs.uoregon.edu',
+                     host='ix-dev.cs.uoregon.edu',
 
-                            user = 'cis422-group7',
+                     user='cis422-group7',
 
-                            password = 'Group7',
+                     password='Group7',
 
-                            db = 'project_1',
+                     db='project_1',
 
-                            charset = 'utf8')
+                     charset='utf8')
 cursor = db.cursor()
 
 login_manager = LoginManager()
@@ -43,6 +44,8 @@ login_manager.login_view = 'login'
 
 global gl_username
 global gl_id
+
+
 # Handles routing to the home page
 @app.route("/")
 @app.route("/index")
@@ -50,11 +53,13 @@ global gl_id
 def index():
     return render_template('location.html', username=current_user.username), 200
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 USERS = [
     {
@@ -78,11 +83,13 @@ def create_user(user_name, password):
     }
     USERS.append(user)
 
+
 def get_user(user_name):
     for user in USERS:
         if user.get("name") == user_name:
             return user
     return None
+
 
 class User(UserMixin):
     def __init__(self, user):
@@ -107,15 +114,18 @@ class User(UserMixin):
                 return User(user)
         return None
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
 
 class LoginForm(FlaskForm):
     username = StringField('user', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('log in')
+
 
 class RegistrationForm(FlaskForm):
     username = StringField('user', validators=[DataRequired()])
@@ -137,7 +147,6 @@ def verify_auth_token(token):
     except BadSignature:
         return None
     return "Success"
-
 
 
 @app.route('/login/', methods=('GET', 'POST'))
@@ -166,17 +175,16 @@ def login():
             if password == check_pass:
                 gl_id = check_id
                 print(gl_id)
-                return render_template('location.html',form=form, username = check_name)
+                return render_template('location.html', form=form, username=check_name)
             else:
                 emsg = "error password or username"
                 flash(emsg)
-                return render_template('login.html',form = form, msg = emsg)
+                return render_template('login.html', form=form, msg=emsg)
         else:
             emsg = "no user found please regiser"
-            return render_template('login.html',msg = emsg)
+            return render_template('login.html', msg=emsg)
     else:
-        return render_template('login.html', form = form)
-
+        return render_template('login.html', form=form)
 
     #     if user_info is None:
     #         emsg = "error password or username"
@@ -188,6 +196,7 @@ def login():
     #         else:
     #             emsg = "error password or username"
     # return render_template('login.html', form=form, emsg=emsg)
+
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
@@ -203,27 +212,35 @@ def register():
                 WHERE `user_name` = '%s'" % (username)
         cursor.execute(sql)
         results = cursor.fetchone()
-        
+
         if results:
             emsg = "user already exist"
-            return render_template('register.html',form = form, msg = emsg),400
+            return render_template('register.html', form=form, msg=emsg), 400
         else:
             userid = uuid.uuid4()
             sql1 = "INSERT INTO `user_id`(`user_id`, \
                 `user_name`, `user_wd`) \
                 VALUES ('%s', '%s', '%s')" % \
-                (userid, username, password)
+                   (userid, username, password)
             cursor.execute(sql1)
             emsg = "successfully register! go login!"
-            return render_template('register.html',form = form, msg = emsg),400
+            return render_template('register.html', form=form, msg=emsg), 400
     else:
-        return render_template('register.html', form = form)
+        return render_template('register.html', form=form)
+
 
 # Handles location send requests
 @app.route('/send_location', methods=['POST'])
 def send():
     global gl_id
-    data = request.form # This will have all location/user data
+    data = {}
+    data['latitude'] = request.json['latitude']
+    data['longitude'] = request.json['longitude']
+
+    #print(data, file=sys.stderr)
+
+
+    #data = request.form  # This will have all location/user data
     # print(gl_id)
     u_id = gl_id
     date = "2020-4-15"
@@ -234,25 +251,32 @@ def send():
     sql = "INSERT INTO user_info(`user_id`, \
        `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
        VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
-       (u_id, date, time, lati, longi, time_at)
+          (u_id, date, time, lati, longi, time_at)
 
-    cursor.execute(sql)
+    # cursor.execute(sql)
     return render_template('location.html')
+
 
 # Error handling routing
 @app.errorhandler(404)
 def error_404(error):
     return render_template('404.html'), 404
+
+
 @app.errorhandler(403)
 def error_403(error):
     return render_template('403.html'), 403
+
+
 @app.errorhandler(401)
 def error_401(error):
     return render_template('401.html'), 401
+
+
 @app.errorhandler(400)
 def error_400(error):
     return render_template('400.html'), 400
 
-if __name__ == "__main__":
-    app.run(debug=True) # Use 'localhost' for testing because it is "trusted" and therefore has access to location data
 
+if __name__ == "__main__":
+    app.run(debug=True)  # Use 'localhost' for testing because it is "trusted" and therefore has access to location data

@@ -16,7 +16,12 @@
     <input type="hidden" id="lng" name="lng" value="null"><br><br>
 </form>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+
 <script>
+
 // Get HTML elements for use later
 var out = document.getElementById("demo");
 var sendButton = document.getElementById("send");
@@ -77,6 +82,21 @@ if ("geolocation" in navigator) {
 
 function SendLocation() {
     //information sending portion goes here
+    var movies = {
+    'latitude': lat,
+    'longitude': lng,
+    }
+
+    $.ajax({
+    url: '/send_location',
+    type: 'POST',
+    data: JSON.stringify(movies),   // converts js value to JSON string
+    })
+    .done(function(result){     // on success get the return object from server
+        console.log(result)     // do whatever with it. In this case see it in console
+    })
+
+
     sendButton.disabled = true;
     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
     locationForm.submit(); //TODO: Add verification that lat/lng != null before submitting
