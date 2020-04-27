@@ -82,26 +82,7 @@ if ("geolocation" in navigator) {
 }
 
 function SendLocation() {
-    getLocation()
-
-    //information sending portion goes here
-
-    var data = {
-    'latitude': lat,
-    'longitude': lng,
-    'time': time,
-    'date': _date
-    }
-
-    $.ajax({
-    url: '/send_location',
-    type: 'POST',
-    data: JSON.stringify(data),
-    })
-    .done(function(result){
-        console.log(result)
-    })
-
+    getLocation();
 
     sendButton.disabled = true;
     out.innerHTML = "Information Sent"; // If sent, the page is being returned to

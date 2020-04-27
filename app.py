@@ -60,8 +60,6 @@ class DB: # https://stackoverflow.com/questions/207981/how-to-enable-mysql-clien
                 results = r.fetch_row(maxrows=0)
         return results
 
-
-
 db = DB()
 db.connect() 
 
@@ -69,7 +67,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 userObjects = {}
-
 
 # Handles routing to the home page
 @app.route("/")
@@ -119,6 +116,9 @@ def load_user(user_id):
         return None
     return userObjects[user_id]
 
+results = db.get("SELECT * FROM user_id")
+for user in results:
+    create_user(user[1], user[2], user[0])
 
 class LoginForm(FlaskForm):
     username = StringField('user', validators=[DataRequired()])
@@ -171,11 +171,15 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
+        remember = form.remember_me.data
         user = get_user(username)
 
         if user:
             if user.verify_password(password):
-                login_user(user)
+                if remember:
+                    login_user(user, remember=True)
+                else:
+                    login_user(user)
                 return render_template('location.html', form=form, username=username)
             else:
                 emsg = "Error: Password incorrect."
@@ -232,35 +236,18 @@ def send():
         lati = data.get('lat')[0]
         longi = data.get('lng')[0]
 
-        #print(past)
-        #print(format(past[0], '.6f'))
-        #print(data.get('lat')[0])
-        #print(format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f'))
-        #print(past[0] == format(float(data.get('lat')[0]), '.7f'))
         if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
             inter_time = time[0:2]+time[3:5] + time[6:8]
-            print(time)
-            print("inter: ", inter_time)
             data_dt = datetime.strptime(inter_time, '%H%M%S').time()
-            #print(data_dt)
-            #print(past[3])
             past_time = (datetime.min + past[3]).time()
             difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
-            #print(difference)
-            # difference is the time form of data's time
-            # past[3] is a deltatime
-            # time_at needs to be int(past[4]) + difference - past[3]
 
             time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
             TSI = 5
         else:
             time_at = 0
             TSI = 5
-        sql = "INSERT INTO user_info(`user_id`, \
-                      `date`, `time`, `latitude`, `longitude`, `time_at_location`, `temporal_sampling_interval`) \
-                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % \
-              (u_id, date, time, lati, longi, time_at, TSI)
-        print(time_at)
+        sql = "INSERT INTO user_info VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % (u_id, date, time, lati, longi, time_at, TSI)
         db.query(sql)
 
     return render_template('location.html'), 200
@@ -288,9 +275,4 @@ def error_400(error):
 
 
 if __name__ == "__main__":
-    sql = "SELECT * FROM user_id"
-    results = db.get(sql)
-    for user in results:
-        create_user(user[1], user[2], user[0])
-
-    app.run(debug=True)  # Use 'localhost' for testing because it is "trusted" and therefore has access to location data
+    app.run(debug=True)  
