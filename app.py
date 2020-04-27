@@ -35,6 +35,7 @@ class DB:
                      charset='utf8')
 
     def query(self, sql):
+        self.conn.ping(True)
         try:
             cursor = self.conn.cursor()
             cursor.execute(sql)
@@ -65,6 +66,8 @@ class DB:
             r=self.conn.store_result()
             results = r.fetch_row(maxrows=0)
         return results
+
+
 
 db = DB()
 db.connect()
