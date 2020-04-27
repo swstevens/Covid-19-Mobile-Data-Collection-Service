@@ -18,6 +18,7 @@ from werkzeug.security import generate_password_hash
 from wtforms import PasswordField, BooleanField, StringField, SubmitField
 from wtforms.validators import DataRequired
 from datetime import *
+from math import isclose
 
 app = Flask(__name__)
 
@@ -238,9 +239,13 @@ def send():
     u_id = current_user.username
     date = data.get('date')[0]
     time = data.get('time')[0]
-    print(round(past[0], 6) == round(float(lati), 6))
-    print(round(past[1], 6) == round(float(longi), 6))
-    if round(past[0], 6) == round(float(lati), 6) and round(past[1], 6) == round(float(longi), 6):
+    # print(abs(float(past[0]) - float(lati))<.00001)
+    # print("past: ", round(past[0], 6))
+    # print("lati: ", round(float(lati), 6))
+    # print(abs(float(past[1]) - float(longi)))
+    # print("past: ", round(past[1], 6))
+    # print("longi: ", round(float(longi), 6))
+    if abs(float(past[0]) - float(lati)) <= .00001 and abs(float(past[1]) - float(longi)) <= .00001:
         inter_time = time[0:2]+time[3:5] + time[6:8]
         data_dt = datetime.strptime(inter_time, '%H%M%S').time()
         past_time = (datetime.min + past[3]).time()
