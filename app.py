@@ -1,25 +1,21 @@
-import sqlite3
-import sys
+import uuid
 
-from flask import Flask, request, abort
+import MySQLdb.cursors
+from flask import Flask, request
+from flask import redirect, flash
+from flask import render_template, url_for
 from flask_login import LoginManager
 from flask_login import UserMixin
-from flask import render_template, redirect, url_for, flash, Response, session, jsonify
-from flask_login import login_user, logout_user
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-from flask import render_template, url_for
 from flask_login import current_user, login_required
-from wtforms import StringField, PasswordField, Form, BooleanField, StringField, validators, SubmitField
-from wtforms.validators import DataRequired, EqualTo
+from flask_login import logout_user
 from flask_wtf.form import FlaskForm
 from itsdangerous import (TimedJSONWebSignatureSerializer \
                               as Serializer, BadSignature, \
                           SignatureExpired)
-import uuid
-from flask_mysqldb import MySQL
-import MySQLdb.cursors
-import re
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
+from wtforms import PasswordField, BooleanField, StringField, SubmitField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
