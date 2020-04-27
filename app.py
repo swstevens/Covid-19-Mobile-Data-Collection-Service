@@ -234,16 +234,13 @@ def register():
 def send():
     global gl_id
     data = request.form.to_dict(flat=False)
-    print(request.form)
-    # print(data['lat'][0])
-    # print(data['time'][0])
 
-    if bool(data):
+    if data.get('lat') is not None and data.get('lng') is not None:
         u_id = gl_id
-        date = data['date'][0]
-        time = data['time'][0]
-        lati = data['lat'][0]
-        longi = data['lng'][0]
+        date = data.get('date')[0]
+        time = data.get('time')[0]
+        lati = data.get('lat')[0]
+        longi = data.get('lng')[0]
         time_at = "1000000000"
         sql = "INSERT INTO user_info(`user_id`, \
                       `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
