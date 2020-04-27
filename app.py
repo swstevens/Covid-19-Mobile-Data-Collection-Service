@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 from wtforms import PasswordField, BooleanField, StringField, SubmitField
 from wtforms.validators import DataRequired
+from datetime import *
 
 app = Flask(__name__)
 
@@ -26,7 +27,7 @@ class DB:
         conn = None
 
     def connect(self):
-        self.conn = MySQLdb.connect(port=3018,
+        self.conn = MySQLdb.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
                      user='a',
                      password='a',
@@ -38,7 +39,7 @@ class DB:
             cursor = self.conn.cursor()
             cursor.execute(sql)
         except (AttributeError, MySQLdb.OperationalError):
-            self.connect(port=3018,
+            self.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
                      user='a',
                      password='a',
@@ -54,7 +55,7 @@ class DB:
             r=self.conn.store_result()
             results = r.fetch_row(maxrows=0)
         except (AttributeError, MySQLdb.OperationalError):
-            self.connect(port=3018,
+            self.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
                      user='a',
                      password='a',
@@ -300,7 +301,7 @@ def register():
 def send():
     global gl_id
     data = request.form.to_dict(flat=False)
-    username = 'hello'
+    username = 'a'
 
     sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (username)
     results = db.get(sql)
@@ -317,8 +318,22 @@ def send():
         print(data.get('lat')[0])
         print(format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f'))
         print(past[0] == format(float(data.get('lat')[0]), '.7f'))
-        if format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f') and format(past[1], '.6f') == format(float(data.get('lng')[0]), '.6f'):
-            time_at = int(past[4]) + 5 # make it a difference between date's time and past's time
+        if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
+            inter_time = time[0:2]+time[3:5] + time[6:8]
+            print(inter_time)
+            data_dt = datetime.strptime(inter_time, '%H%M%S').time()
+            print(data_dt)
+            print(past[3])
+            print(data_dt - past[3])
+            difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past[3])
+            print(difference)
+            # difference is the time form of data's time
+            # past[3] is a deltatime
+            # time_at needs to be int(past[4]) + difference - past[3]
+
+            #time_at = int(past[4]) + difference.minute  # make it a difference between date's time and past's time
+            #TSI = time_at//5 * 5
+            time_at = 1
         else:
             time_at = 0
         sql = "INSERT INTO user_info(`user_id`, \
