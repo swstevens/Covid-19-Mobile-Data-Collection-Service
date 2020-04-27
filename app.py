@@ -135,6 +135,7 @@ class RegistrationForm(FlaskForm):
 
 class DisplayForm(FlaskForm):
     username = StringField('user', validators=[DataRequired()])
+    tab = BooleanField('Tab delimited output file')
 
 
 @app.route('/display/', methods=('GET', 'POST'))
@@ -142,21 +143,33 @@ def display():
     form = DisplayForm()
     if form.validate_on_submit():
         username = form.username.data
+        tab = form.tab.data
         #TODO: lower() username
         print("Getting location data for: ", username)
 
-        sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
+        sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (username)
         results = db.get(sql)
         if results:
-            csvList = ["lat,lng,name,color,note"]
-            for entry in results:
-                csvList.append(",".join(map(str,[entry[0], entry[1], '', "ff0000", ' '.join(map(str,entry[2:]))])))
-            csv = "\n".join(csvList)
-            return Response(
-                csv,
-                mimetype="text/csv",
-                headers={"Content-disposition":
-                         "attachment; filename=locations.csv"})
+            if tab:
+                txt = "User I.D.\tDate\tTime\tLatitude\tLongitude\tTime at Location\n"
+                usr = get_user(username)
+                for entry in results:
+                    txt = txt + "%s\t%s\t%s\t%s\t%s\t%s\n" % (usr.id, entry[2], entry[3], entry[0]+0.00175, entry[1]+0.00175, entry[4])
+                return Response(
+                    txt,
+                    mimetype="text/plain",
+                    headers={"Content-disposition":
+                             "attachment; filename=locations.txt"})
+            else:
+                csvList = ["lat,lng,name,color,note"]
+                for entry in results:
+                    csvList.append(",".join(map(str,[entry[0]+0.00175, entry[1]+0.00175, '', "ff0000", ' '.join(map(str,entry[2:]))])))
+                csv = "\n".join(csvList)
+                return Response(
+                    csv,
+                    mimetype="text/csv",
+                    headers={"Content-disposition":
+                             "attachment; filename=locations.csv"})
         else:
             emsg = "No user found. please regiser"
             return render_template('login.html', msg=emsg)
