@@ -21,19 +21,59 @@ from wtforms.validators import DataRequired
 app = Flask(__name__)
 
 app.secret_key = 'abc'
+class DB:
+    def __init__(self):
+        conn = None
 
-db = MySQLdb.connect(port=3018,
-
+    def connect(self):
+        self.conn = MySQLdb.connect(port=3018,
                      host='ix-dev.cs.uoregon.edu',
-
-                     user='cis422-group7',
-
-                     password='Group7',
-
+                     user='a',
+                     password='a',
                      db='project_1',
-
                      charset='utf8')
-cursor = db.cursor()
+
+    def query(self, sql):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(sql)
+        except (AttributeError, MySQLdb.OperationalError):
+            self.connect(port=3018,
+                     host='ix-dev.cs.uoregon.edu',
+                     user='a',
+                     password='a',
+                     db='project_1',
+                     charset='utf8')
+            cursor = self.conn.cursor()
+            cursor.execute(sql)
+        return cursor
+
+    def get(self, sql):
+        try:
+            self.conn.query(sql)
+            r=self.conn.store_result()
+            results = r.fetch_row(maxrows=0)
+        except (AttributeError, MySQLdb.OperationalError):
+            self.connect(port=3018,
+                     host='ix-dev.cs.uoregon.edu',
+                     user='a',
+                     password='a',
+                     db='project_1',
+                     charset='utf8')
+            self.conn.query(sql)
+            r=self.conn.store_result()
+            results = r.fetch_row(maxrows=0)
+        return results
+       
+db = DB()
+db.connect() 
+# db = MySQLdb.connect(port=3018,
+#                      host='ix-dev.cs.uoregon.edu',
+#                      user='a',
+#                      password='a',
+#                      db='project_1',
+#                      charset='utf8')
+# cursor = db.cursor()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -158,9 +198,7 @@ def display():
         print("Getting location data for: ", username)
 
         sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
-        db.query(sql)
-        r=db.store_result()
-        results = r.fetch_row(maxrows=0)
+        results = db.get(sql)
         if results:
             csvList = ["lat,lng,name,color,note"]
             for entry in results:
@@ -193,8 +231,8 @@ def login():
 
         sql = "SELECT * FROM `user_id` \
                 WHERE `user_name` = '%s'" % (username)
-        cursor.execute(sql)
-        results = cursor.fetchone()
+        c = db.query(sql)
+        results = c.fetchone()
 
         if results:
             check_id = results[0]
@@ -237,11 +275,11 @@ def register():
 
         sql = "SELECT * FROM `user_id` \
                 WHERE `user_name` = '%s'" % (username)
-        cursor.execute(sql)
-        results = cursor.fetchone()
+        c = db.query(sql)
+        results = c.fetchone()
 
         if results:
-            emsg = "user already exist"
+            emsg = "That username is taken. Try another one."
             return render_template('register.html', form=form, msg=emsg), 400
         else:
             userid = uuid.uuid4()
@@ -249,9 +287,9 @@ def register():
                 `user_name`, `user_wd`) \
                 VALUES ('%s', '%s', '%s')" % \
                    (userid, username, password)
-            cursor.execute(sql1)
-            emsg = "successfully register! go login!"
-            return render_template('register.html', form=form, msg=emsg), 400
+            db.query(sql)
+            emsg = "You have successfully registered! You may now log in."
+            return render_template('login.html', form=form, msg=emsg), 400
     else:
         return render_template('register.html', form=form)
 
@@ -265,9 +303,7 @@ def send():
     username = gl_username
 
     sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
-    db.query(sql)
-    r = db.store_result()
-    results = r.fetch_row(maxrows=0)
+    results = db.get(sql)
 
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = gl_username
@@ -281,7 +317,7 @@ def send():
                       VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
               (u_id, date, time, lati, longi, time_at)
 
-        cursor.execute(sql)
+        db.query(sql)
 
     return render_template('location.html'), 200
 
