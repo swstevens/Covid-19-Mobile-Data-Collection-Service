@@ -1,26 +1,22 @@
-import sqlite3
-import sys
+import uuid
 
-from flask import Flask, request, abort
+import MySQLdb.cursors
+from flask import Flask, request
+from flask import redirect, flash
+from flask import render_template, url_for
 from flask_login import LoginManager
 from flask_login import UserMixin
-from flask import render_template, redirect, url_for, flash, Response, session, jsonify
-from flask_login import login_user, logout_user
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-from flask import render_template, url_for
 from flask_login import current_user, login_required
-from wtforms import StringField, PasswordField, Form, BooleanField, StringField, validators, SubmitField
-from wtforms.validators import DataRequired, EqualTo
+from flask_login import logout_user
 from flask_wtf.form import FlaskForm
 from itsdangerous import (TimedJSONWebSignatureSerializer \
                               as Serializer, BadSignature, \
                           SignatureExpired)
-import uuid
-from flask_mysqldb import MySQL
-import MySQLdb.cursors
-import re
 import csv
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
+from wtforms import PasswordField, BooleanField, StringField, SubmitField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
@@ -267,16 +263,15 @@ def register():
 def send():
     global gl_id
     data = request.form.to_dict(flat=False)
-    print(request.form)
-    # print(data['lat'][0])
-    # print(data['time'][0])
 
-    if bool(data):
-        u_id = gl_id
-        date = data['date'][0]
-        time = data['time'][0]
-        lati = data['lat'][0]
-        longi = data['lng'][0]
+    cursor.execute("SELECT date, time, latitude, longitude FROM user_info WHERE user_id LIKE %s", (gl_username,))
+
+    if data.get('lat') is not None and data.get('lng') is not None:
+        u_id = gl_username
+        date = data.get('date')[0]
+        time = data.get('time')[0]
+        lati = data.get('lat')[0]
+        longi = data.get('lng')[0]
         time_at = "1000000000"
         sql = "INSERT INTO user_info(`user_id`, \
                       `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
