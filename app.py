@@ -64,9 +64,9 @@ class DB:
             r=self.conn.store_result()
             results = r.fetch_row(maxrows=0)
         return results
-       
+
 db = DB()
-db.connect() 
+db.connect()
 # db = MySQLdb.connect(port=3018,
 #                      host='ix-dev.cs.uoregon.edu',
 #                      user='a',
@@ -300,7 +300,7 @@ def register():
 def send():
     global gl_id
     data = request.form.to_dict(flat=False)
-    username = gl_username
+    username = 'hello'
 
     sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (username)
     results = db.get(sql)
