@@ -316,27 +316,26 @@ def send():
         time = data.get('time')[0]
         lati = data.get('lat')[0]
         longi = data.get('lng')[0]
-        print(past)
-        print(format(past[0], '.6f'))
-        print(data.get('lat')[0])
-        print(format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f'))
-        print(past[0] == format(float(data.get('lat')[0]), '.7f'))
+        #print(past)
+        #print(format(past[0], '.6f'))
+        #print(data.get('lat')[0])
+        #print(format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f'))
+        #print(past[0] == format(float(data.get('lat')[0]), '.7f'))
         if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
             inter_time = time[0:2]+time[3:5] + time[6:8]
-            print(inter_time)
+            #print("inter: ", inter_time)
             data_dt = datetime.strptime(inter_time, '%H%M%S').time()
-            print(data_dt)
-            print(past[3])
-            print(data_dt - past[3])
-            difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past[3])
-            print(difference)
+            #print(data_dt)
+            #print(past[3])
+            past_time = (datetime.min + past[3]).time()
+            difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
+            #print(difference)
             # difference is the time form of data's time
             # past[3] is a deltatime
             # time_at needs to be int(past[4]) + difference - past[3]
 
-            #time_at = int(past[4]) + difference.minute  # make it a difference between date's time and past's time
-            #TSI = time_at//5 * 5
-            time_at = 1
+            time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
+            TSI = time_at//5 * 5
         else:
             time_at = 0
         sql = "INSERT INTO user_info(`user_id`, \
