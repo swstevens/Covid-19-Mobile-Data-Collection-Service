@@ -243,7 +243,7 @@ def send():
             difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
 
             time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
-            TSI = 5
+            TSI = (difference.total_seconds()%3600)//60//5*5
         else:
             time_at = 0
             TSI = 5

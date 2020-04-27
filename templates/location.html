@@ -83,6 +83,12 @@ if ("geolocation" in navigator) {
 
 function SendLocation() {
     getLocation();
+    dt = new Date();
+    hours = String(dt.getHours()).padStart(2,'0');
+    minutes = String(dt.getMinutes()).padStart(2,'0');
+    seconds = String(dt.getSeconds()).padStart(2,'0');
+    time.value = hours + ":" + minutes + ":" + seconds;
+
 
     sendButton.disabled = true;
     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
