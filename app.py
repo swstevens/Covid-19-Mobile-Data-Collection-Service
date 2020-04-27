@@ -230,6 +230,8 @@ def send():
     global gl_id
     data = request.form.to_dict(flat=False)
 
+    cursor.execute("SELECT date, time, latitude, longitude FROM user_info WHERE user_id LIKE %s", (gl_username,))
+
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = gl_username
         date = data.get('date')[0]
