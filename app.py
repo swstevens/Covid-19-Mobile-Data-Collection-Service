@@ -20,6 +20,7 @@ import uuid
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+import csv
 
 app = Flask(__name__)
 
@@ -156,10 +157,27 @@ def verify_auth_token(token):
 def display():
     form = DisplayForm()
     if form.validate_on_submit():
-        username = form.username.value
+        username = form.username.data
+        #TODO: lower() username
+        print("Getting location data for: ", username)
 
-        print(username.value)
-        # sql query code here
+        sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
+        db.query(sql)
+        r=db.store_result()
+        results = r.fetch_row(maxrows=0)
+        if results:
+            csvList = ["lat,lng,name,color,note"]
+            for entry in results:
+                csvList.append(",".join(map(str,[entry[0], entry[1], '', "ff0000", ' '.join(map(str,entry[2:]))])))
+            csv = "\n".join(csvList)
+            return Response(
+                csv,
+                mimetype="text/csv",
+                headers={"Content-disposition":
+                         "attachment; filename=locations.csv"})
+        else:
+            emsg = "No user found. please regiser"
+            return render_template('login.html', msg=emsg)
 
     return render_template('display.html', form=form)
 
