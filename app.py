@@ -268,8 +268,6 @@ def send():
     db.query(sql)
     r = db.store_result()
     results = r.fetch_row(maxrows=0)
-    data = results[-1]
-    print(data)
 
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = gl_username
