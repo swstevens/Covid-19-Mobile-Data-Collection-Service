@@ -169,12 +169,11 @@ def login():
 
         if results:
             check_id = results[0]
-            print(check_id)
             check_name = results[1]
             check_pass = results[2]
             if password == check_pass:
                 gl_id = check_id
-                print(gl_id)
+                gl_username = check_name
                 return render_template('location.html', form=form, username=check_name)
             else:
                 emsg = "error password or username"
@@ -236,7 +235,7 @@ def send():
     data = request.form.to_dict(flat=False)
 
     if data.get('lat') is not None and data.get('lng') is not None:
-        u_id = gl_id
+        u_id = gl_username
         date = data.get('date')[0]
         time = data.get('time')[0]
         lati = data.get('lat')[0]
