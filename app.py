@@ -306,7 +306,7 @@ def send():
     data = request.form.to_dict(flat=False)
     username = 'a'
 
-    sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (username)
+    sql = "SELECT latitude, longitude, date, time, time_at_location, temporal_sampling_interval FROM user_info WHERE user_id LIKE '%s';" % (username)
     results = db.get(sql)
     past = results[-1]
 
@@ -338,10 +338,11 @@ def send():
             TSI = time_at//5 * 5
         else:
             time_at = 0
+            TSI = 0
         sql = "INSERT INTO user_info(`user_id`, \
-                      `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
-                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
-              (u_id, date, time, lati, longi, time_at)
+                      `date`, `time`, `latitude`, `longitude`, `time_at_location`, `temporal_sampling_interval`) \
+                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % \
+              (u_id, date, time, lati, longi, time_at, TSI)
         print(time_at)
         db.query(sql)
 
