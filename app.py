@@ -29,8 +29,8 @@ class DB:
     def connect(self):
         self.conn = MySQLdb.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
-                     user='a',
-                     password='a',
+                     user='cis422-group7',
+                     password='Group7',
                      db='project_1',
                      charset='utf8')
 
@@ -42,8 +42,8 @@ class DB:
         except (AttributeError, MySQLdb.OperationalError):
             self.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
-                     user='a',
-                     password='a',
+                     user='cis422-group7',
+                     password='Group7',
                      db='project_1',
                      charset='utf8')
             cursor = self.conn.cursor()
@@ -58,8 +58,8 @@ class DB:
         except (AttributeError, MySQLdb.OperationalError):
             self.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
-                     user='a',
-                     password='a',
+                     user='cis422-group7',
+                     password='Group7',
                      db='project_1',
                      charset='utf8')
             self.conn.query(sql)
