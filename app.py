@@ -218,7 +218,12 @@ def send():
     data = request.form.to_dict(flat=False)
     sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
     results = db.get(sql)
-    past = results[-1]
+    print("results: ", results)
+    if results is ():
+        # create dummy location
+        past = (0, 0, datetime.today().date(), timedelta(0, 86400))
+    else:
+        past = results[-1]
 
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = current_user.username
@@ -246,10 +251,10 @@ def send():
             # time_at needs to be int(past[4]) + difference - past[3]
 
             time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
-            TSI = time_at//5 * 5
+            TSI = 5
         else:
             time_at = 0
-            TSI = 0
+            TSI = 5
         sql = "INSERT INTO user_info(`user_id`, \
                       `date`, `time`, `latitude`, `longitude`, `time_at_location`, `temporal_sampling_interval`) \
                       VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % \
