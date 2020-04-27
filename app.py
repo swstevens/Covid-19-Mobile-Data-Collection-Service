@@ -156,9 +156,9 @@ def verify_auth_token(token):
 def display():
     form = DisplayForm()
     if form.validate_on_submit():
-        username = form.username
+        username = form.username.value
 
-        print(username)
+        print(username.value)
         # sql query code here
 
     return render_template('display.html', form=form)
