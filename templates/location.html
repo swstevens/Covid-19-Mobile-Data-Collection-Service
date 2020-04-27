@@ -83,26 +83,6 @@ if ("geolocation" in navigator) {
 }
 
 function SendLocation() {
-
-    //information sending portion goes here
-
-    var data = {
-    'latitude': lat,
-    'longitude': lng,
-    'time': time,
-    'date': _date
-    }
-
-    $.ajax({
-    url: '/send_location',
-    type: 'POST',
-    data: JSON.stringify(data),
-    })
-    .done(function(result){
-        console.log(result)
-    })
-
-
     sendButton.disabled = true;
     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
     locationForm.submit(); //TODO: Add verification that lat/lng != null before submitting
