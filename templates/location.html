@@ -74,7 +74,6 @@ function showPosition(position) {
 }
 
 if ("geolocation" in navigator) {
-    getLocation();
     //await delay(2000);
     setTimeout(function(){SendLocation()},300000);
     //setTimeout(function(){getLocation()}, 295001;
@@ -83,6 +82,7 @@ if ("geolocation" in navigator) {
 }
 
 function SendLocation() {
+    getLocation()
 
     //information sending portion goes here
 
