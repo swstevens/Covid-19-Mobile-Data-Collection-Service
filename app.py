@@ -26,7 +26,7 @@ class DB:
         conn = None
 
     def connect(self):
-        self.conn = MySQLdb.connect(port=3018,
+        self.conn = MySQLdb.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
                      user='a',
                      password='a',
@@ -38,7 +38,7 @@ class DB:
             cursor = self.conn.cursor()
             cursor.execute(sql)
         except (AttributeError, MySQLdb.OperationalError):
-            self.connect(port=3018,
+            self.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
                      user='a',
                      password='a',
