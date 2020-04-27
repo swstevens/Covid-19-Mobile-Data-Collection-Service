@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 from wtforms import PasswordField, BooleanField, StringField, SubmitField
 from wtforms.validators import DataRequired
+from datetime import *
 
 app = Flask(__name__)
 
@@ -28,12 +29,13 @@ class DB: # https://stackoverflow.com/questions/207981/how-to-enable-mysql-clien
     def connect(self):
         self.conn = MySQLdb.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
-                     user='a',
-                     password='a',
+                     user='cis422-group7',
+                     password='Group7',
                      db='project_1',
                      charset='utf8')
 
     def query(self, sql):
+        self.conn.ping(True)
         try:
             cursor = self.conn.cursor()
             cursor.execute(sql)
@@ -57,7 +59,9 @@ class DB: # https://stackoverflow.com/questions/207981/how-to-enable-mysql-clien
                 r = self.conn.store_result()
                 results = r.fetch_row(maxrows=0)
         return results
-       
+
+
+
 db = DB()
 db.connect() 
 
@@ -214,6 +218,7 @@ def send():
     data = request.form.to_dict(flat=False)
     sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
     results = db.get(sql)
+    past = results[-1]
 
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = current_user.username
@@ -221,12 +226,35 @@ def send():
         time = data.get('time')[0]
         lati = data.get('lat')[0]
         longi = data.get('lng')[0]
-        time_at = "1000000000"
-        sql = "INSERT INTO user_info('user_id', \
-                      'date', 'time', 'latitude', 'longitude', 'time_at_location') \
-                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
-              (u_id, date, time, lati, longi, time_at)
 
+        #print(past)
+        #print(format(past[0], '.6f'))
+        #print(data.get('lat')[0])
+        #print(format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f'))
+        #print(past[0] == format(float(data.get('lat')[0]), '.7f'))
+        if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
+            inter_time = time[0:2]+time[3:5] + time[6:8]
+            #print("inter: ", inter_time)
+            data_dt = datetime.strptime(inter_time, '%H%M%S').time()
+            #print(data_dt)
+            #print(past[3])
+            past_time = (datetime.min + past[3]).time()
+            difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
+            #print(difference)
+            # difference is the time form of data's time
+            # past[3] is a deltatime
+            # time_at needs to be int(past[4]) + difference - past[3]
+
+            time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
+            TSI = time_at//5 * 5
+        else:
+            time_at = 0
+            TSI = 0
+        sql = "INSERT INTO user_info(`user_id`, \
+                      `date`, `time`, `latitude`, `longitude`, `time_at_location`, `temporal_sampling_interval`) \
+                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % \
+              (u_id, date, time, lati, longi, time_at, TSI)
+        print(time_at)
         db.query(sql)
 
     return render_template('location.html'), 200
