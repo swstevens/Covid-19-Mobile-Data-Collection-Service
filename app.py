@@ -216,9 +216,9 @@ def register():
 @login_required
 def send():
     data = request.form.to_dict(flat=False)
-    sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
+    sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
     results = db.get(sql)
-    print("results: ", results)
+    # print("results: ", results)
     if results is ():
         # create dummy location
         past = (0, 0, datetime.today().date(), timedelta(0, 86400))
@@ -239,7 +239,8 @@ def send():
         #print(past[0] == format(float(data.get('lat')[0]), '.7f'))
         if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
             inter_time = time[0:2]+time[3:5] + time[6:8]
-            #print("inter: ", inter_time)
+            print(time)
+            print("inter: ", inter_time)
             data_dt = datetime.strptime(inter_time, '%H%M%S').time()
             #print(data_dt)
             #print(past[3])

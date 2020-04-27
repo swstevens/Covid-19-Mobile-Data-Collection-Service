@@ -40,9 +40,9 @@ yyyy = dt.getFullYear();
 _date.value = yyyy + "-" + mm + "-" + dd;
 
 
-var hours = String(dt.getHours());
-var minutes = String(dt.getMinutes());
-var seconds = String(dt.getSeconds());
+var hours = String(dt.getHours()).padStart(2,'0');
+var minutes = String(dt.getMinutes()).padStart(2,'0');
+var seconds = String(dt.getSeconds()).padStart(2,'0');
 time.value = hours + ":" + minutes + ":" + seconds;
 
 // var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
@@ -76,8 +76,8 @@ function showPosition(position) {
 if ("geolocation" in navigator) {
     getLocation();
     //await delay(2000);
-    setTimeout(function(){SendLocation()},5000);
-    setTimeout(function(){getLocation()}, 295001);
+    setTimeout(function(){SendLocation()},300000);
+    //setTimeout(function(){getLocation()}, 295001;
 } else {
     console.log("location could not be found");
 }
