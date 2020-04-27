@@ -60,8 +60,6 @@ class DB: # https://stackoverflow.com/questions/207981/how-to-enable-mysql-clien
                 results = r.fetch_row(maxrows=0)
         return results
 
-
-
 db = DB()
 db.connect() 
 
@@ -69,7 +67,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 userObjects = {}
-
 
 # Handles routing to the home page
 @app.route("/")
@@ -171,11 +168,15 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
+        remember = form.remember_me.data
         user = get_user(username)
 
         if user:
             if user.verify_password(password):
-                login_user(user)
+                if remember:
+                    login_user(user, remember=True)
+                else:
+                    login_user(user)
                 return render_template('location.html', form=form, username=username)
             else:
                 emsg = "Error: Password incorrect."
@@ -217,6 +218,7 @@ def register():
 def send():
     data = request.form.to_dict(flat=False)
     sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
+    print(sql)
     results = db.get(sql)
     # print("results: ", results)
     if results is ():
@@ -256,11 +258,8 @@ def send():
         else:
             time_at = 0
             TSI = 5
-        sql = "INSERT INTO user_info(`user_id`, \
-                      `date`, `time`, `latitude`, `longitude`, `time_at_location`, `temporal_sampling_interval`) \
-                      VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % \
-              (u_id, date, time, lati, longi, time_at, TSI)
-        print(time_at)
+        sql = "INSERT INTO user_info VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % (u_id, date, time, lati, longi, time_at, TSI)
+        print(sql)
         db.query(sql)
 
     return render_template('location.html'), 200
