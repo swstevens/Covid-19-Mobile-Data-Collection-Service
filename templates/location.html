@@ -39,7 +39,7 @@ document.getElementById("datetime").innerHTML = dt.toLocaleString();
 var dd = String(dt.getDate()).padStart(2, '0');
 var mm = String(dt.getMonth()+1).padStart(2, '0');
 yyyy = dt.getFullYear();
-_date.value = mm + "/" + dd + "/" + yyyy;
+_date.value = yyyy + "-" + mm + "-" + dd;
 
 
 var hours = String(dt.getHours());
