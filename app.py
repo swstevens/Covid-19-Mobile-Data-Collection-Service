@@ -1,21 +1,25 @@
-import uuid
+import sqlite3
+import sys
 
-import MySQLdb.cursors
-from flask import Flask, request
-from flask import redirect, flash
-from flask import render_template, url_for
+from flask import Flask, request, abort
 from flask_login import LoginManager
 from flask_login import UserMixin
+from flask import render_template, redirect, url_for, flash, Response, session, jsonify
+from flask_login import login_user, logout_user
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
+from flask import render_template, url_for
 from flask_login import current_user, login_required
-from flask_login import logout_user
+from wtforms import StringField, PasswordField, Form, BooleanField, StringField, validators, SubmitField
+from wtforms.validators import DataRequired, EqualTo
 from flask_wtf.form import FlaskForm
 from itsdangerous import (TimedJSONWebSignatureSerializer \
                               as Serializer, BadSignature, \
                           SignatureExpired)
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-from wtforms import PasswordField, BooleanField, StringField, SubmitField
-from wtforms.validators import DataRequired
+import uuid
+from flask_mysqldb import MySQL
+import MySQLdb.cursors
+import re
 
 app = Flask(__name__)
 
@@ -128,6 +132,9 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('password', validators=[DataRequired()])
 
 
+class DisplayForm(FlaskForm):
+    username = StringField('user', validators=[DataRequired()])
+
 def generate_auth_token(id, expiration=600):
     s = Serializer(app.secret_key, expires_in=expiration)
     token = s.dumps({'id': id})
@@ -143,6 +150,18 @@ def verify_auth_token(token):
     except BadSignature:
         return None
     return "Success"
+
+
+@app.route('/display/', methods=('GET', 'POST'))
+def display():
+    form = DisplayForm()
+    if form.validate_on_submit():
+        username = form.username.value
+
+        print(username.value)
+        # sql query code here
+
+    return render_template('display.html', form=form)
 
 
 @app.route('/login/', methods=('GET', 'POST'))
@@ -165,11 +184,12 @@ def login():
 
         if results:
             check_id = results[0]
+            print(check_id)
             check_name = results[1]
             check_pass = results[2]
             if password == check_pass:
                 gl_id = check_id
-                gl_username = check_name
+                print(gl_id)
                 return render_template('location.html', form=form, username=check_name)
             else:
                 emsg = "error password or username"
