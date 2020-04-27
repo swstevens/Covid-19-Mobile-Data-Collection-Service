@@ -234,10 +234,13 @@ def register():
 def send():
     global gl_id
     data = request.form.to_dict(flat=False)
+    print(request.form)
+    # print(data['lat'][0])
+    # print(data['time'][0])
 
     if bool(data):
         u_id = gl_id
-        date = "2020-4-15"
+        date = data['date'][0]
         time = data['time'][0]
         lati = data['lat'][0]
         longi = data['lng'][0]

@@ -13,7 +13,9 @@
 
 <form id="location" action="/send_location" method="POST">
     <input type="hidden" id="lat" name="lat" value="null"><br>
-    <input type="hidden" id="lng" name="lng" value="null"><br><br>
+    <input type="hidden" id="lng" name="lng" value="null"><br>
+    <input type="hidden" id="_date" name="date" value="null"><br>
+    <input type="hidden" id="time" name="time" value="null"><br>
 </form>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -29,19 +31,21 @@ var locationForm = document.getElementById("location");
 var lat = document.getElementById("lat");
 var lng = document.getElementById("lng");
 var dt = new Date();
+var time = document.getElementById("time");
+var _date = document.getElementById("_date");
 
 document.getElementById("datetime").innerHTML = dt.toLocaleString();
 
 var dd = String(dt.getDate()).padStart(2, '0');
-varmm = String(dt.getMonth()+1).padStart(2, '0');
-var yyyy = dt.getFullYear();
-var _date = mm + "/" + mm + "/" + dd;
+var mm = String(dt.getMonth()+1).padStart(2, '0');
+yyyy = dt.getFullYear();
+_date.value = mm + "/" + dd + "/" + yyyy;
 
 
 var hours = String(dt.getHours());
 var minutes = String(dt.getMinutes());
 var seconds = String(dt.getSeconds());
-var time = hours + ":" + minutes + ":" + seconds;
+time.value = hours + ":" + minutes + ":" + seconds;
 
 // var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
 // if(sent){ // This value is sent over via Flask
@@ -63,7 +67,7 @@ function getLocation() {
 
 // TODO: Change from a button to an if statement to automatically find user location
 function showPosition(position) {
-    // Update the form values with latutide and longitude
+    // Update the form values with latitude and longitude
     lat.value = position.coords.latitude;
     lng.value = position.coords.longitude;
     out.innerHTML = "Latitude: " + position.coords.latitude +
@@ -83,6 +87,7 @@ if ("geolocation" in navigator) {
 function SendLocation() {
 
     //information sending portion goes here
+
     var data = {
     'latitude': lat,
     'longitude': lng,
