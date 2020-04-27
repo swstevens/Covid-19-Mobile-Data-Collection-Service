@@ -225,7 +225,7 @@ def send():
     # print("results: ", results)
     if results is ():
         # create dummy location
-        past = (0, 0, datetime.today().date(), timedelta(0, 86400))
+        past = (0, 0, datetime.today().date(), timedelta(0, 86400), 0)
     else:
         past = results[-1]
 
