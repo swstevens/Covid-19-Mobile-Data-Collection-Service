@@ -198,12 +198,10 @@ def login():
 
         if results:
             check_id = results[0]
-            print(check_id)
             check_name = results[1]
             check_pass = results[2]
             if password == check_pass:
                 gl_id = check_id
-                print(gl_id)
                 return render_template('location.html', form=form, username=check_name)
             else:
                 emsg = "error password or username"
@@ -258,13 +256,20 @@ def register():
         return render_template('register.html', form=form)
 
 
+
 # Handles location send requests
 @app.route('/send_location', methods=['POST'])
 def send():
     global gl_id
     data = request.form.to_dict(flat=False)
+    username = gl_username
 
-    cursor.execute("SELECT date, time, latitude, longitude FROM user_info WHERE user_id LIKE %s", (gl_username,))
+    sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
+    db.query(sql)
+    r = db.store_result()
+    results = r.fetch_row(maxrows=0)
+    data = results[-1]
+    print(data)
 
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = gl_username
