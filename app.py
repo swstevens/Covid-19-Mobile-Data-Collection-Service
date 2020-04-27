@@ -7,7 +7,7 @@ from flask import render_template, url_for
 from flask_login import LoginManager
 from flask_login import UserMixin
 from flask_login import current_user, login_required
-from flask_login import logout_user
+from flask_login import logout_user, login_user
 from flask_wtf.form import FlaskForm
 from itsdangerous import (TimedJSONWebSignatureSerializer \
                               as Serializer, BadSignature, \
@@ -21,12 +21,12 @@ from wtforms.validators import DataRequired
 app = Flask(__name__)
 
 app.secret_key = 'abc'
-class DB:
+class DB: # https://stackoverflow.com/questions/207981/how-to-enable-mysql-client-auto-re-connect-with-mysqldb
     def __init__(self):
         conn = None
 
     def connect(self):
-        self.conn = MySQLdb.connect(port=3018,
+        self.conn = MySQLdb.connect(port=3548,
                      host='ix-dev.cs.uoregon.edu',
                      user='a',
                      password='a',
@@ -38,49 +38,33 @@ class DB:
             cursor = self.conn.cursor()
             cursor.execute(sql)
         except (AttributeError, MySQLdb.OperationalError):
-            self.connect(port=3018,
-                     host='ix-dev.cs.uoregon.edu',
-                     user='a',
-                     password='a',
-                     db='project_1',
-                     charset='utf8')
+            self.connect()
             cursor = self.conn.cursor()
             cursor.execute(sql)
         return cursor
 
     def get(self, sql):
+        results = None
         try:
             self.conn.query(sql)
-            r=self.conn.store_result()
-            results = r.fetch_row(maxrows=0)
+            if self.conn:
+                r = self.conn.store_result()
+                results = r.fetch_row(maxrows=0)
         except (AttributeError, MySQLdb.OperationalError):
-            self.connect(port=3018,
-                     host='ix-dev.cs.uoregon.edu',
-                     user='a',
-                     password='a',
-                     db='project_1',
-                     charset='utf8')
+            self.connect()
             self.conn.query(sql)
-            r=self.conn.store_result()
-            results = r.fetch_row(maxrows=0)
+            if self.conn:
+                r = self.conn.store_result()
+                results = r.fetch_row(maxrows=0)
         return results
        
 db = DB()
 db.connect() 
-# db = MySQLdb.connect(port=3018,
-#                      host='ix-dev.cs.uoregon.edu',
-#                      user='a',
-#                      password='a',
-#                      db='project_1',
-#                      charset='utf8')
-# cursor = db.cursor()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-global gl_username
-global gl_id
+userObjects = {}
 
 
 # Handles routing to the home page
@@ -88,8 +72,7 @@ global gl_id
 @app.route("/index")
 @login_required
 def index():
-    return render_template('location.html', username=current_user.username), 200
-
+    return render_template('location.html'), 200
 
 @app.route('/logout')
 @login_required
@@ -97,64 +80,40 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+def create_user(usr, pas, uid=None):
+    if not uid:
+        uid = uuid.uuid4()
+    user = User([usr, pas, uid])
+    userObjects[uid] = user
+    return user
 
-USERS = [
-    {
-        "id": 1,
-        "name": 'lily',
-        "password": generate_password_hash('123')
-    },
-    {
-        "id": 2,
-        "name": 'tom',
-        "password": generate_password_hash('123')
-    }
-]
-
-
-def create_user(user_name, password):
-    user = {
-        "name": user_name,
-        "password": generate_password_hash(password),
-        "id": uuid.uuid4()
-    }
-    USERS.append(user)
-
-
-def get_user(user_name):
-    for user in USERS:
-        if user.get("name") == user_name:
+def get_user(usr):
+    for user in userObjects.values():
+        if user.username == usr:
             return user
     return None
 
 
 class User(UserMixin):
     def __init__(self, user):
-        self.username = user.get("name")
-        self.password_hash = user.get("password")
-        self.id = user.get("id")
+        self.username = user[0]
+        self.password = user[1]
+        self.id = user[2]
 
     def verify_password(self, password):
-        if self.password_hash is None:
+        if self.password is None:
             return False
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password, password)
 
     def get_id(self):
         return self.id
 
-    @staticmethod
-    def get(user_id):
-        if not user_id:
-            return None
-        for user in USERS:
-            if user.get('id') == user_id:
-                return User(user)
-        return None
-
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    if user_id not in userObjects:
+        return None
+    return userObjects[user_id]
 
 
 class LoginForm(FlaskForm):
@@ -167,26 +126,11 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     username = StringField('user', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
 
 
 class DisplayForm(FlaskForm):
     username = StringField('user', validators=[DataRequired()])
-
-def generate_auth_token(id, expiration=600):
-    s = Serializer(app.secret_key, expires_in=expiration)
-    token = s.dumps({'id': id})
-    return {'token': token, 'duration': expiration}
-
-
-def verify_auth_token(token):
-    s = Serializer(app.secret_key)
-    try:
-        data = s.loads(token)
-    except SignatureExpired:
-        return None
-    except BadSignature:
-        return None
-    return "Success"
 
 
 @app.route('/display/', methods=('GET', 'POST'))
@@ -220,47 +164,24 @@ def display():
 def login():
     form = LoginForm()
     emsg = None
-    global gl_username
-    global gl_id
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        gl_username = username
-        # user_id: uuid.uuid4()
-        # user_info = get_user(user_name)
+        user = get_user(username)
 
-        sql = "SELECT * FROM `user_id` \
-                WHERE `user_name` = '%s'" % (username)
-        c = db.query(sql)
-        results = c.fetchone()
-
-        if results:
-            check_id = results[0]
-            check_name = results[1]
-            check_pass = results[2]
-            if password == check_pass:
-                gl_id = check_id
-                return render_template('location.html', form=form, username=check_name)
+        if user:
+            if user.verify_password(password):
+                login_user(user)
+                return render_template('location.html', form=form, username=username)
             else:
-                emsg = "error password or username"
+                emsg = "Error: Password incorrect."
                 flash(emsg)
                 return render_template('login.html', form=form, msg=emsg)
         else:
-            emsg = "no user found please regiser"
-            return render_template('login.html', msg=emsg)
+            emsg = "No user found. Please regiser if you have not."
+            return render_template('login.html', form=form, msg=emsg)
     else:
         return render_template('login.html', form=form)
-
-    #     if user_info is None:
-    #         emsg = "error password or username"
-    #     else:
-    #         user = User(user_info)
-    #         if user.verify_password(password):
-    #             login_user(user)
-    #             return render_template('location.html',form=form, username = current_user.username)
-    #         else:
-    #             emsg = "error password or username"
-    # return render_template('login.html', form=form, emsg=emsg)
 
 
 @app.route('/register', methods=('GET', 'POST'))
@@ -269,51 +190,40 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         # Login and validate the user.
-        # user should be an instance of your `User` class
+        # User should be an instance of your 'User' class
         username = form.username.data
         password = form.password.data
 
-        sql = "SELECT * FROM `user_id` \
-                WHERE `user_name` = '%s'" % (username)
-        c = db.query(sql)
-        results = c.fetchone()
-
-        if results:
+        if get_user(username):
             emsg = "That username is taken. Try another one."
             return render_template('register.html', form=form, msg=emsg), 400
         else:
-            userid = uuid.uuid4()
-            sql1 = "INSERT INTO `user_id`(`user_id`, \
-                `user_name`, `user_wd`) \
-                VALUES ('%s', '%s', '%s')" % \
-                   (userid, username, password)
+            newUser = create_user(username, generate_password_hash(password))
+            sql = "INSERT INTO user_id VALUES ('%s', '%s', '%s')" % (newUser.id, username, newUser.password)
             db.query(sql)
             emsg = "You have successfully registered! You may now log in."
-            return render_template('login.html', form=form, msg=emsg), 400
+            return render_template('login.html', form=form, msg=emsg), 200
     else:
         return render_template('register.html', form=form)
 
 
-
 # Handles location send requests
 @app.route('/send_location', methods=['POST'])
+@login_required
 def send():
-    global gl_id
     data = request.form.to_dict(flat=False)
-    username = gl_username
-
-    sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
+    sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
     results = db.get(sql)
 
     if data.get('lat') is not None and data.get('lng') is not None:
-        u_id = gl_username
+        u_id = current_user.username
         date = data.get('date')[0]
         time = data.get('time')[0]
         lati = data.get('lat')[0]
         longi = data.get('lng')[0]
         time_at = "1000000000"
-        sql = "INSERT INTO user_info(`user_id`, \
-                      `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
+        sql = "INSERT INTO user_info('user_id', \
+                      'date', 'time', 'latitude', 'longitude', 'time_at_location') \
                       VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
               (u_id, date, time, lati, longi, time_at)
 
@@ -344,4 +254,9 @@ def error_400(error):
 
 
 if __name__ == "__main__":
+    sql = "SELECT * FROM user_id"
+    results = db.get(sql)
+    for user in results:
+        create_user(user[1], user[2], user[0])
+
     app.run(debug=True)  # Use 'localhost' for testing because it is "trusted" and therefore has access to location data
