@@ -229,26 +229,28 @@ def send():
     else:
         past = results[-1]
 
-    if data.get('lat') is not None and data.get('lng') is not None:
-        u_id = current_user.username
-        date = data.get('date')[0]
-        time = data.get('time')[0]
+    if 'null' in data.get('lat')[0] or 'null' in data.get('lng')[0]:
+        lati = past[0]
+        longi = past[1]
+    else:
         lati = data.get('lat')[0]
         longi = data.get('lng')[0]
+    u_id = current_user.username
+    date = data.get('date')[0]
+    time = data.get('time')[0]
+    if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
+        inter_time = time[0:2]+time[3:5] + time[6:8]
+        data_dt = datetime.strptime(inter_time, '%H%M%S').time()
+        past_time = (datetime.min + past[3]).time()
+        difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
 
-        if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
-            inter_time = time[0:2]+time[3:5] + time[6:8]
-            data_dt = datetime.strptime(inter_time, '%H%M%S').time()
-            past_time = (datetime.min + past[3]).time()
-            difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
-
-            time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
-            TSI = (difference.total_seconds()%3600)//60//5*5
-        else:
-            time_at = 0
-            TSI = 5
-        sql = "INSERT INTO user_info VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % (u_id, date, time, lati, longi, time_at, TSI)
-        db.query(sql)
+        time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
+        TSI = 5
+    else:
+        time_at = 0
+        TSI = 5
+    sql = "INSERT INTO user_info VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % (u_id, date, time, lati, longi, time_at, TSI)
+    db.query(sql)
 
     return render_template('location.html'), 200
 
