@@ -238,11 +238,14 @@ def send():
     u_id = current_user.username
     date = data.get('date')[0]
     time = data.get('time')[0]
-    if format(past[0], '.6f') == format(float(lati), '.6f') and format(past[1], '.6f') == format(float(longi), '.6f'):
+    print(round(past[0], 6) == round(float(lati), 6))
+    print(round(past[1], 6) == round(float(longi), 6))
+    if round(past[0], 6) == round(float(lati), 6) and round(past[1], 6) == round(float(longi), 6):
         inter_time = time[0:2]+time[3:5] + time[6:8]
         data_dt = datetime.strptime(inter_time, '%H%M%S').time()
         past_time = (datetime.min + past[3]).time()
         difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
+        print(difference.total_seconds() % 3600)
 
         time_at = int(past[4]) + (difference.total_seconds() % 3600)//60 # make it a difference between date's time and past's time
         TSI = 5
