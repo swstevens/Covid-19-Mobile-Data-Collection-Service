@@ -1,0 +1,10 @@
+
+<h1>Location History</h1>
+
+<form method='POST'>
+  {{ form.csrf_token }}
+  {{ form.username.label }} {{ form.username(size=20) }}
+<input type="submit" value="Search">
+</form>
+
+<p> <a href="/login"> login here!</a></p>

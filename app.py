@@ -132,6 +132,9 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('password', validators=[DataRequired()])
 
 
+class DisplayForm(FlaskForm):
+    username = StringField('user', validators=[DataRequired()])
+
 def generate_auth_token(id, expiration=600):
     s = Serializer(app.secret_key, expires_in=expiration)
     token = s.dumps({'id': id})
@@ -147,6 +150,18 @@ def verify_auth_token(token):
     except BadSignature:
         return None
     return "Success"
+
+
+@app.route('/display/', methods=('GET', 'POST'))
+def display():
+    form = DisplayForm()
+    if form.validate_on_submit():
+        username = form.username
+
+        print(username)
+        # sql query code here
+
+    return render_template('display.html', form=form)
 
 
 @app.route('/login/', methods=('GET', 'POST'))
