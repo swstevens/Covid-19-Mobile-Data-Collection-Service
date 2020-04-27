@@ -302,8 +302,9 @@ def send():
     data = request.form.to_dict(flat=False)
     username = gl_username
 
-    sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
+    sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (username)
     results = db.get(sql)
+    past = results[-1]
 
     if data.get('lat') is not None and data.get('lng') is not None:
         u_id = gl_username
@@ -311,12 +312,20 @@ def send():
         time = data.get('time')[0]
         lati = data.get('lat')[0]
         longi = data.get('lng')[0]
-        time_at = "1000000000"
+        print(past)
+        print(format(past[0], '.6f'))
+        print(data.get('lat')[0])
+        print(format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f'))
+        print(past[0] == format(float(data.get('lat')[0]), '.7f'))
+        if format(past[0], '.6f') == format(float(data.get('lat')[0]), '.6f') and format(past[1], '.6f') == format(float(data.get('lng')[0]), '.6f'):
+            time_at = int(past[4]) + 5 # make it a difference between date's time and past's time
+        else:
+            time_at = 0
         sql = "INSERT INTO user_info(`user_id`, \
                       `date`, `time`, `latitude`, `longitude`, `time_at_location`) \
                       VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s')" % \
               (u_id, date, time, lati, longi, time_at)
-
+        print(time_at)
         db.query(sql)
 
     return render_template('location.html'), 200
