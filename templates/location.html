@@ -76,8 +76,8 @@ function showPosition(position) {
 if ("geolocation" in navigator) {
     getLocation();
     //await delay(2000);
-    //SendLocation();
-    setTimeout(function(){SendLocation()}, 300000);
+    SendLocation();
+    setTimeout(function(){getLocation()}, 300000);
 } else {
     console.log("location could not be found");
 }
