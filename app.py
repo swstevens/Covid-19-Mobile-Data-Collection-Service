@@ -1,7 +1,7 @@
 import uuid
 
 import MySQLdb.cursors
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask import redirect, flash
 from flask import render_template, url_for
 from flask_login import LoginManager
