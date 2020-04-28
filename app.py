@@ -268,12 +268,15 @@ def send():
     # the time from the website is converted to a datetime and the two are subtracted and then added to the time at loc
     # otherwise sets time_at to 0 as location is different
     if abs(float(past[0]) - float(lati)) <= .00001 and abs(float(past[1]) - float(longi)) <= .00001:
+        # src on how to parse colon datetimes https://stackoverflow.com/questions/30999230/how-to-parse-timezone-with-colon
         inter_time = time[0:2]+time[3:5] + time[6:8]
         data_dt = datetime.strptime(inter_time, '%H%M%S').time()
         past_time = (datetime.min + past[3]).time()
+        # concept for difference based on https://stackoverflow.com/questions/9578906/easiest-way-to-combine-date-and-time-strings-to-single-datetime-object-using-pyt
         difference = datetime.combine(datetime.today(), data_dt) - datetime.combine(datetime.today(), past_time)
         print(difference.total_seconds() % 3600)
 
+        #timedelta to minutes src https://stackoverflow.com/questions/14190045/how-do-i-convert-datetime-timedelta-to-minutes-hours-in-python/43965102
         time_at = int(past[4]) + (difference.total_seconds() % 3600)/60 # make it a difference between date's time and past's time
         TSI = 5
     else:
