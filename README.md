@@ -23,6 +23,7 @@ https://docs.google.com/document/d/1WMjeGNgpIyr57a3qrxb5NNCq_Z6vFYfF5vkOwWLuYV4/
 User_Documentation.pdf          
 https://docs.google.com/document/d/1XDDD1h08Im2EVtX1m9aehztTM_3U4NXxz794EALzPEs/edit?usp=sharing
 
+please see the installation_instructions link above to view more detail step of the following set up process
 + Install the dependencies with the command `pip3 install -r requirements.txt`  
 + Run the project locally with `python3 app.py`  
 + Go to `http://localhost:5000/` to see the home page  
