@@ -18,7 +18,7 @@
     <input type="hidden" id="time" name="time" value="null"><br>
 </form>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
 
 <script>
 
@@ -34,6 +34,7 @@ var _date = document.getElementById("_date");
 
 document.getElementById("datetime").innerHTML = dt.toLocaleString();
 
+// conversion of date and time to preferred representations
 var dd = String(dt.getDate()).padStart(2, '0');
 var mm = String(dt.getMonth()+1).padStart(2, '0');
 yyyy = dt.getFullYear();
@@ -45,16 +46,11 @@ var minutes = String(dt.getMinutes()).padStart(2,'0');
 var seconds = String(dt.getSeconds()).padStart(2,'0');
 time.value = hours + ":" + minutes + ":" + seconds;
 
-// var sent = {{ sent|safe }}; // This value determines if the page is being visited for the first time or returned to after the user sent their location
-// if(sent){ // This value is sent over via Flask
-//     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
-// }
-
-// TODO: Checking the form element would be a better way to do this
 if(out.value == undefined){ // If we have not gotten a latitude or longitude
     sendButton.disabled = true; // Disable the send button so null data can't be sent
 }
 
+// simple get location program that calls show location child function
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition);
@@ -63,9 +59,8 @@ function getLocation() {
     }
 }
 
-// TODO: Change from a button to an if statement to automatically find user location
 function showPosition(position) {
-    // Update the form values with latitude and longitude
+    // Updates the form values with latitude and longitude
     lat.value = position.coords.latitude;
     lng.value = position.coords.longitude;
     out.innerHTML = "Latitude: " + position.coords.latitude +
@@ -74,15 +69,15 @@ function showPosition(position) {
 }
 
 if ("geolocation" in navigator) {
-    getLocation()
-    //await delay(2000);
+    // automatically updates time/date/location after five minutes then sends it to the python file app.py
+    getLocation();
     setTimeout(function(){SendLocation()},300000);
-    //setTimeout(function(){getLocation()}, 295001;
 } else {
     console.log("location could not be found");
 }
 
 function SendLocation() {
+    // gets an updated date, time, and location
     getLocation();
     dt = new Date();
     hours = String(dt.getHours()).padStart(2,'0');
@@ -93,7 +88,8 @@ function SendLocation() {
 
     sendButton.disabled = true;
     out.innerHTML = "Information Sent"; // If sent, the page is being returned to
-    locationForm.submit(); //TODO: Add verification that lat/lng != null before submitting
+    //sends information form the html file to the python file app.py
+    locationForm.submit();
 }
 </script>
 <p><a href='/display'>find past locations here!</a></p>

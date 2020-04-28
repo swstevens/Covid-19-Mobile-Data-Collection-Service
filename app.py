@@ -140,10 +140,10 @@ class DisplayForm(FlaskForm):
 
 @app.route('/display/', methods=('GET', 'POST'))
 def display():
+    # finds all data entries for a particular user ID
     form = DisplayForm()
     if form.validate_on_submit():
         username = form.username.data
-        #TODO: lower() username
         print("Getting location data for: ", username)
 
         sql = "SELECT latitude, longitude, date, time FROM user_info WHERE user_id LIKE '%s';" % (username)
@@ -170,6 +170,7 @@ def login():
     form = LoginForm()
     emsg = None
     if form.validate_on_submit():
+        # assigns information received from website to variables
         username = form.username.data
         password = form.password.data
         remember = form.remember_me.data
@@ -195,7 +196,7 @@ def login():
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
-    # store id with random index numbe
+    # store id with random index number
     form = RegistrationForm()
     if form.validate_on_submit():
         # Login and validate the user.
@@ -220,16 +221,21 @@ def register():
 @app.route('/send_location', methods=['POST'])
 @login_required
 def send():
+    # request form from website containing user information and create a dictionary using it
     data = request.form.to_dict(flat=False)
+    # query the database for entries from a particular user
     sql = "SELECT latitude, longitude, date, time, time_at_location FROM user_info WHERE user_id LIKE '%s';" % (current_user.username)
+    # select most recent entry
     results = db.get(sql)
-    # print("results: ", results)
+
+    # create a dummy location if no entries are found in the database (for new users)
     if results is ():
         # create dummy location
         past = (0, 0, datetime.today().date(), timedelta(0, 86400), 0)
     else:
         past = results[-1]
 
+    # checks to make sure that the latitude nad longitude information received from the user is not null
     if 'null' in data.get('lat')[0] or 'null' in data.get('lng')[0]:
         lati = past[0]
         longi = past[1]
@@ -239,12 +245,13 @@ def send():
     u_id = current_user.username
     date = data.get('date')[0]
     time = data.get('time')[0]
-    # print(abs(float(past[0]) - float(lati))<.00001)
-    # print("past: ", round(past[0], 6))
-    # print("lati: ", round(float(lati), 6))
-    # print(abs(float(past[1]) - float(longi)))
-    # print("past: ", round(past[1], 6))
-    # print("longi: ", round(float(longi), 6))
+
+    # if the newly received location and the newest entry in the database are within a meter
+    # Calculates the time difference between the newly received entry
+    # and the most recent entry in the database from that particular user
+    # since the time sent from the website is a string and the time in the database is a timedelta,
+    # the time from the website is converted to a datetime and the two are subtracted and then added to the time at loc
+    # otherwise sets time_at to 0 as location is different
     if abs(float(past[0]) - float(lati)) <= .00001 and abs(float(past[1]) - float(longi)) <= .00001:
         inter_time = time[0:2]+time[3:5] + time[6:8]
         data_dt = datetime.strptime(inter_time, '%H%M%S').time()
@@ -257,6 +264,7 @@ def send():
     else:
         time_at = 0
         TSI = 5
+    # send new entry with all updated variables to the
     sql = "INSERT INTO user_info VALUES ('%s', '%s',  '%s',  '%s', '%s', '%s', '%s')" % (u_id, date, time, lati, longi, time_at, TSI)
     db.query(sql)
 
