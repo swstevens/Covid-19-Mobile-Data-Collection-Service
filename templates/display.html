@@ -7,6 +7,7 @@ it then sends that username ID to the python file to perform the query to the da
 <form method='POST'>
   {{ form.csrf_token }}
   {{ form.username.label }} {{ form.username(size=20) }}
+  {{ form.tab.label }} {{ form.tab(size=20) }}
 <input type="submit" value="Search">
 </form>
 
