@@ -1,3 +1,8 @@
+'''
+___app.py___
+Main driver code for the website. Handles page routing, HTTP requests, and user login through Flask.
+Also manages the connection to the database for storing location data and user data.
+'''
 import uuid
 
 import MySQLdb.cursors
@@ -96,7 +101,7 @@ def get_user(usr):
     return None
 
 
-class User(UserMixin):
+class User(UserMixin): # Base login system derived from code here: https://flask-login.readthedocs.io/en/latest/
     def __init__(self, user):
         self.username = user[0]
         self.password = user[1]
