@@ -1,9 +1,5 @@
 # Covid-19 Mobile Data Collection Service
 
-
-Having some trouble with flask_mysqldb installing it with pip. What worked was a virtualenv, cd into this directory, then run 'source flask/bin/activate', and you should be able to follow the instructions below to see it on local. Pythonanywhere does all this automatically so we won't need this 'flask' virtualenv folder in the end
-Milestone Tracker found here:
-
 https://docs.google.com/spreadsheets/d/1NCU6rjLlbyiZ07lvdKQyk5NYsSqj_MeOIsbLB1JqzcA/edit?usp=sharing
 
 Project Plan/SDS/SRS found here:
